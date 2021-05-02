@@ -20,7 +20,6 @@ class CurrenciesFragment : Fragment(), MainActivity.OnUpdateDataListener {
     companion object {
         fun newInstance() = CurrenciesFragment()
         private const val BUNDLE_RECYCLER_LAYOUT = "BUNDLE_RECYCLER_LAYOUT"
-        private const val CALCULATE_DIALOG = "CALCULATE_DIALOG"
     }
 
     private val viewModel: CurrenciesViewModel by lazy {
@@ -118,10 +117,7 @@ class CurrenciesFragment : Fragment(), MainActivity.OnUpdateDataListener {
         binding.currenciesRecyclerView.adapter =
             CurrenciesRecyclerViewAdapter(sortCurrency, object : CurrencyOnClickListener {
                 override fun onCurrencyClicked(currency: Currency) {
-                    CalculateDialog(currency).show(
-                        requireActivity().supportFragmentManager,
-                        CALCULATE_DIALOG
-                    )
+                    CalculateDialog.newInstance(currency, requireActivity().supportFragmentManager)
                 }
             })
     }

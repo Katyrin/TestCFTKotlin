@@ -62,12 +62,12 @@ dependencies {
     implementation "androidx.cardview:cardview:1.0.0"
     testImplementation 'junit:junit:4.13.2'
 
-    testImplementation 'org.mockito:mockito-core:3.8.0'
+    androidTestImplementation 'org.mockito.kotlin:mockito-kotlin:3.1.0'
     testImplementation 'android.arch.core:core-testing:1.1.1'
 
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation "androidx.test:runner:$androidx_test_version"
     androidTestImplementation "androidx.test:core-ktx:$androidx_test_version"
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
-    androidTestImplementation 'com.kaspersky.android-components:kaspresso:1.2.0'
+    androidTestImplementation 'com.kaspersky.android-components:kaspresso:1.1.0'
 }
