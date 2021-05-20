@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">TestCFTKotlin-dev</string>
+    <string name="rub">RUB</string>
+    <string name="currency_conversion">Currency conversion</string>
+    <string name="enter_the_amount_in_rubles">Enter the amount in rubles</string>
+    <string name="result">Result:</string>
+    <string name="close">Close</string>
+    <string name="calculate">Calculate</string>
+    <string name="update_data">Data updated</string>
+    <string name="update_data_message">Data updated in background</string>
+    <string name="success_remote">Successful download of remote data</string>
+    <string name="success_local">Successful download of local data</string>
+    <string name="success_local_db">Successful download of local data from DB</string>
+    <string name="error">Error</string>
+    <string name="reload">Reload</string>
+    <string name="enter_amount">Enter amount in rubles</string>
+</resources>

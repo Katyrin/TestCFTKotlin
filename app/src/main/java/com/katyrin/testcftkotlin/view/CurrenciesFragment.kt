@@ -59,7 +59,8 @@ class CurrenciesFragment : Fragment(), MainActivity.OnUpdateDataListener {
                 currencyList = appState.currencies
                 requireView().createAndShow(
                     getString(R.string.success_remote),
-                    length = Snackbar.LENGTH_LONG)
+                    length = Snackbar.LENGTH_LONG
+                )
             }
             is AppState.SuccessLocalQuery -> {
                 binding.loadingLayout.visibility = View.GONE
@@ -71,7 +72,8 @@ class CurrenciesFragment : Fragment(), MainActivity.OnUpdateDataListener {
                     currencyList = appState.currencies
                     requireView().createAndShow(
                         getString(R.string.success_local_db),
-                        length = Snackbar.LENGTH_LONG)
+                        length = Snackbar.LENGTH_LONG
+                    )
                 }
             }
             is AppState.SuccessSaveData -> {
@@ -81,7 +83,8 @@ class CurrenciesFragment : Fragment(), MainActivity.OnUpdateDataListener {
                 currencyList = appState.currencies
                 requireView().createAndShow(
                     getString(R.string.success_local),
-                    length = Snackbar.LENGTH_LONG)
+                    length = Snackbar.LENGTH_LONG
+                )
             }
             is AppState.Loading -> {
                 binding.currenciesRecyclerView.visibility = View.GONE

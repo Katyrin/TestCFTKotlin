@@ -29,8 +29,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
-                    .replace(R.id.container, CurrenciesFragment.newInstance())
-                    .commitNow()
+                .replace(R.id.container, CurrenciesFragment.newInstance())
+                .commitNow()
         }
 
         if (!isWorkScheduled(TAG_REFRESH_WORK))
@@ -50,7 +50,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when(item.itemId) {
+        return when (item.itemId) {
             R.id.updateData -> {
                 listener.updateData()
                 true
@@ -60,7 +60,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setPeriodicDataUpdate(tag: String?) {
-        val constraints = Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
+        val constraints =
+            Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
         val periodicWorkRequest = PeriodicWorkRequest
             .Builder(
                 UpdateData::class.java,

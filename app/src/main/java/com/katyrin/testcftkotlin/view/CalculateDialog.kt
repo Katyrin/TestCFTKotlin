@@ -56,7 +56,7 @@ class CalculateDialog : BottomSheetDialogFragment() {
                 val result = amountInRubles * currency.nominal / currency.value
                 val roundResult = String.format("%.2f", result).toDouble()
                 val stringResult = "$roundResult ${currency.charCode}"
-                binding.result.text =stringResult
+                binding.result.text = stringResult
             } else {
                 binding.amountInRubles.error = getString(R.string.enter_amount)
             }

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">TestCFTKotlin</string>
+    <string name="app_name">TestCFTKotlin-live</string>
     <string name="rub">RUB</string>
     <string name="currency_conversion">Currency conversion</string>
     <string name="enter_the_amount_in_rubles">Enter the amount in rubles</string>

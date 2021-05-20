@@ -6,7 +6,7 @@ import com.katyrin.testcftkotlin.model.room.CurrenciesDao
 import com.katyrin.testcftkotlin.model.room.MainDataBase
 
 
-class App: Application() {
+class App : Application() {
     override fun onCreate() {
         super.onCreate()
         appInstance = this
