@@ -6,7 +6,5 @@ import retrofit2.http.GET
 
 interface CbrApi {
     @GET("daily_json.js")
-    fun getCurrencies(
-
-    ): Call<CurrenciesDTO>
+    fun getCurrencies(): Call<CurrenciesDTO>
 }

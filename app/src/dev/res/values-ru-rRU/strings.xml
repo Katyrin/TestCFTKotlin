@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">TestCFTKotlin</string>
+    <string name="app_name">TestCFTKotlin-dev</string>
     <string name="rub">RUB</string>
     <string name="currency_conversion">"Обмен валюты "</string>
     <string name="enter_the_amount_in_rubles">Введите сумму в рублях</string>

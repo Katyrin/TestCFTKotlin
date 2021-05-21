@@ -1,40 +1,42 @@
 package com.katyrin.testcftkotlin.viewmodel
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.katyrin.testcftkotlin.App
 import com.katyrin.testcftkotlin.model.*
-import com.katyrin.testcftkotlin.repository.*
+import com.katyrin.testcftkotlin.repository.CurrencyRepository
+import com.katyrin.testcftkotlin.repository.LocalRepository
 import com.katyrin.testcftkotlin.utils.convertCurrenciesDTOToModel
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import javax.inject.Inject
 
 
-class CurrenciesViewModel(private val state: SavedStateHandle) : ViewModel() {
+class CurrenciesViewModel @Inject constructor(
+    private val currencyRemoteRepository: CurrencyRepository,
+    private val currencyLocalRepository: LocalRepository
+) : ViewModel() {
 
-    val liveData: MutableLiveData<AppState> = MutableLiveData()
-    private val currencyRemoteRepository: CurrencyRepository =
-        CurrencyRepositoryImpl(RemoteDataSource())
-    private val currencyLocalRepository: LocalRepository =
-        LocalRepositoryImpl(App.getCurrenciesDao())
+    private var currenciesSave = listOf<Currency>()
+    private val _liveData: MutableLiveData<AppState> = MutableLiveData<AppState>()
+    val liveData: LiveData<AppState> = _liveData
 
     fun getSaveStateLiveData() {
-        val currencies = state.get<List<Currency>>("currencies")
-        liveData.value = AppState.Loading
+        _liveData.value = AppState.Loading
         Thread {
-            liveData.postValue(currencies?.let { AppState.SuccessSaveData(it) })
+            _liveData.postValue(currenciesSave.let { AppState.SuccessSaveData(it) })
         }.start()
     }
+
     fun saveState(currencies: List<Currency>) {
-        state.set("currencies", currencies)
+        currenciesSave = currencies
     }
 
     fun getAllCurrencies() {
-        liveData.value = AppState.Loading
+        _liveData.value = AppState.Loading
         Thread {
-            liveData.postValue(AppState.SuccessLocalQuery(currencyLocalRepository.getAllCurrencies()))
+            _liveData.postValue(AppState.SuccessLocalQuery(currencyLocalRepository.getAllCurrencies()))
         }.start()
     }
 
@@ -45,11 +47,11 @@ class CurrenciesViewModel(private val state: SavedStateHandle) : ViewModel() {
     }
 
     fun getCurrenciesFromRemoteSource() {
-        liveData.value = AppState.Loading
+        _liveData.value = AppState.Loading
         currencyRemoteRepository.getCurrenciesFromServer(object : Callback<CurrenciesDTO> {
             override fun onResponse(call: Call<CurrenciesDTO>, response: Response<CurrenciesDTO>) {
                 val serverResponse: CurrenciesDTO? = response.body()
-                liveData.postValue(
+                _liveData.postValue(
                     if (response.isSuccessful && serverResponse != null) {
                         checkResponse(serverResponse)
                     } else {
@@ -59,7 +61,7 @@ class CurrenciesViewModel(private val state: SavedStateHandle) : ViewModel() {
             }
 
             override fun onFailure(call: Call<CurrenciesDTO>, t: Throwable) {
-                liveData.postValue(AppState.Error(Throwable(t.message ?: REQUEST_ERROR)))
+                _liveData.postValue(AppState.Error(Throwable(t.message ?: REQUEST_ERROR)))
             }
 
             private fun checkResponse(serverResponse: CurrenciesDTO): AppState {

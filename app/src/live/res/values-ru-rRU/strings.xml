@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TestCFTKotlin-live</string>
+    <string name="rub">RUB</string>
+    <string name="currency_conversion">"Обмен валюты "</string>
+    <string name="enter_the_amount_in_rubles">Введите сумму в рублях</string>
+    <string name="result">Результат:</string>
+    <string name="close">Закрыть</string>
+    <string name="calculate">Рассчитать</string>
+    <string name="update_data">Данные обновлены</string>
+    <string name="update_data_message">Данные обновлены в фоне</string>
+    <string name="success_remote">Успешная загрузка удаленных данных</string>
+    <string name="success_local">Успешная загрузка локальных данных</string>
+    <string name="success_local_db">Успешная загрузка локальных данных из БД</string>
+    <string name="error">Ошибка</string>
+    <string name="reload">Перезагрузить</string>
+    <string name="enter_amount">Введите сумму в рублях</string>
+</resources>

@@ -4,7 +4,7 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class Currency (
+data class Currency(
     val id: String = "",
     val numCode: Int = 0,
     val charCode: String = "",
@@ -12,4 +12,4 @@ data class Currency (
     val name: String = "",
     var value: Double = 0.0,
     var previous: Double = 0.0
-): Parcelable
+) : Parcelable

@@ -14,21 +14,22 @@ import com.katyrin.testcftkotlin.utils.convertCurrenciesDTOToModel
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import javax.inject.Inject
 
-class UpdateData(private val context: Context, workerParameters: WorkerParameters)
-    : Worker(context, workerParameters) {
-
-    private val currencyRemoteRepository: CurrencyRepository =
-        CurrencyRepositoryImpl(RemoteDataSource())
-    private val currencyLocalRepository: LocalRepository =
-        LocalRepositoryImpl(App.getCurrenciesDao())
+class UpdateData @Inject constructor(
+    private val context: Context,
+    workerParameters: WorkerParameters,
+    private val currencyRemoteRepository: CurrencyRepository,
+    private val currencyLocalRepository: LocalRepository
+) : Worker(context, workerParameters) {
 
     override fun doWork(): Result {
         return try {
             updateCurrenciesInDataBase()
             showNotification(
                 context.getString(R.string.update_data),
-                context.getString(R.string.update_data_message))
+                context.getString(R.string.update_data_message)
+            )
             Result.success()
         } catch (e: Exception) {
             Result.failure()
@@ -47,6 +48,7 @@ class UpdateData(private val context: Context, workerParameters: WorkerParameter
                     }
                 }
             }
+
             override fun onFailure(call: Call<CurrenciesDTO>, t: Throwable) {}
         })
     }

@@ -2,13 +2,22 @@ package com.katyrin.testcftkotlin
 
 import android.app.Application
 import androidx.room.Room
+import com.katyrin.testcftkotlin.di.AppComponent
+import com.katyrin.testcftkotlin.di.AppModule
+import com.katyrin.testcftkotlin.di.DaggerAppComponent
 import com.katyrin.testcftkotlin.model.room.CurrenciesDao
 import com.katyrin.testcftkotlin.model.room.MainDataBase
 
 
-class App: Application() {
+class App : Application() {
+
+    lateinit var appComponent: AppComponent
+
     override fun onCreate() {
         super.onCreate()
+        appComponent = DaggerAppComponent.builder()
+            .appModule(AppModule(this))
+            .build()
         appInstance = this
     }
 
@@ -30,9 +39,9 @@ class App: Application() {
             }
             return db
         }
+    }
 
-        fun getCurrenciesDao(): CurrenciesDao {
-            return getMainDB()!!.currenciesDao()
-        }
+    fun getCurrenciesDao(): CurrenciesDao {
+        return getMainDB()!!.currenciesDao()
     }
 }

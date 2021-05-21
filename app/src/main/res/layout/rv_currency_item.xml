@@ -1,28 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="@dimen/margin_eight"
+    android:theme="@style/RecyclerViewItemStyle"
     app:cardCornerRadius="@dimen/four_dp"
-    app:cardElevation="@dimen/four_dp"
-    android:theme="@style/RecyclerViewItemStyle">
+    app:cardElevation="@dimen/four_dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_margin="@dimen/margin_eight">
+        android:layout_margin="@dimen/margin_eight"
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/currencyName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/margin_sixteen"
             android:layout_gravity="center"
+            android:layout_marginBottom="@dimen/margin_sixteen"
             android:gravity="center"
-            android:textStyle="bold"/>
+            android:textStyle="bold" />
 
 
         <LinearLayout
@@ -35,15 +34,15 @@
                 android:id="@+id/currencyCharCode"
                 android:layout_width="@dimen/zero_dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginBottom="@dimen/margin_eight" />
+                android:layout_marginBottom="@dimen/margin_eight"
+                android:layout_weight="1" />
 
             <TextView
                 android:id="@+id/currencyNominal"
                 android:layout_width="@dimen/zero_dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginBottom="@dimen/margin_eight"/>
+                android:layout_marginBottom="@dimen/margin_eight"
+                android:layout_weight="1" />
 
         </LinearLayout>
 
@@ -54,18 +53,18 @@
             android:layout_marginRight="@dimen/margin_eight">
 
             <TextView
-                android:text="@string/rub"
                 android:layout_width="@dimen/zero_dp"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/margin_eight"
                 android:layout_weight="1"
-                android:layout_marginBottom="@dimen/margin_eight"/>
+                android:text="@string/rub" />
 
             <TextView
                 android:id="@+id/currencyValue"
                 android:layout_width="@dimen/zero_dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginBottom="@dimen/margin_eight" />
+                android:layout_marginBottom="@dimen/margin_eight"
+                android:layout_weight="1" />
 
         </LinearLayout>
 
