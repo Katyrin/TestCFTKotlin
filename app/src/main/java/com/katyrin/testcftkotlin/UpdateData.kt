@@ -14,15 +14,14 @@ import com.katyrin.testcftkotlin.utils.convertCurrenciesDTOToModel
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import javax.inject.Inject
 
-class UpdateData(private val context: Context, workerParameters: WorkerParameters) :
-    Worker(context, workerParameters) {
-
-    private val currencyRemoteRepository: CurrencyRepository =
-        CurrencyRepositoryImpl(RemoteDataSource())
-
-    private val currencyLocalRepository: LocalRepository =
-        LocalRepositoryImpl(App.getCurrenciesDao())
+class UpdateData @Inject constructor(
+    private val context: Context,
+    workerParameters: WorkerParameters,
+    private val currencyRemoteRepository: CurrencyRepository,
+    private val currencyLocalRepository: LocalRepository
+) : Worker(context, workerParameters) {
 
     override fun doWork(): Result {
         return try {

@@ -1,11 +1,13 @@
 package com.katyrin.testcftkotlin.view
 
+import android.content.Context
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
@@ -14,20 +16,21 @@ import com.katyrin.testcftkotlin.databinding.CurrenciesFragmentBinding
 import com.katyrin.testcftkotlin.model.Currency
 import com.katyrin.testcftkotlin.viewmodel.AppState
 import com.katyrin.testcftkotlin.viewmodel.CurrenciesViewModel
+import javax.inject.Inject
 
 class CurrenciesFragment : Fragment(), MainActivity.OnUpdateDataListener {
 
-    companion object {
-        fun newInstance() = CurrenciesFragment()
-        private const val BUNDLE_RECYCLER_LAYOUT = "BUNDLE_RECYCLER_LAYOUT"
-    }
-
-    private val viewModel: CurrenciesViewModel by lazy {
-        ViewModelProvider(this).get(CurrenciesViewModel::class.java)
-    }
+    @Inject
+    lateinit var factory: ViewModelProvider.Factory
+    private val viewModel: CurrenciesViewModel by viewModels(factoryProducer = { factory })
     private lateinit var binding: CurrenciesFragmentBinding
     private var currencyList: List<Currency> = listOf()
     private var savedRecyclerLayoutState: Parcelable? = null
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        (activity as MainActivity).appComponent.inject(this)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,8 +40,8 @@ class CurrenciesFragment : Fragment(), MainActivity.OnUpdateDataListener {
         return binding.root
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         viewModel.liveData.observe(viewLifecycleOwner, { renderData(it) })
         if (savedInstanceState != null) {
@@ -147,5 +150,10 @@ class CurrenciesFragment : Fragment(), MainActivity.OnUpdateDataListener {
             binding.currenciesRecyclerView.layoutManager?.onSaveInstanceState()
         )
         viewModel.saveState(currencyList)
+    }
+
+    companion object {
+        fun newInstance() = CurrenciesFragment()
+        private const val BUNDLE_RECYCLER_LAYOUT = "BUNDLE_RECYCLER_LAYOUT"
     }
 }

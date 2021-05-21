@@ -1,8 +1,5 @@
 package com.katyrin.testcftkotlin.view
 
-import android.app.Activity
-import android.content.Context
-import android.content.ContextWrapper
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -39,12 +36,4 @@ class CurrenciesRecyclerViewAdapter(
     }
 
     override fun getItemCount(): Int = currencies.size
-
-    private fun Context.getActivity(): Activity? {
-        return when (this) {
-            is Activity -> this
-            is ContextWrapper -> this.baseContext.getActivity()
-            else -> null
-        }
-    }
 }

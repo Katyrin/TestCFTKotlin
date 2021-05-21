@@ -4,17 +4,26 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
 import androidx.work.*
 import com.google.common.util.concurrent.ListenableFuture
+import com.katyrin.testcftkotlin.App
 import com.katyrin.testcftkotlin.R
 import com.katyrin.testcftkotlin.UpdateData
 import com.katyrin.testcftkotlin.databinding.ActivityMainBinding
+import com.katyrin.testcftkotlin.di.AppComponent
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 
 
 class MainActivity : AppCompatActivity() {
+
+    init {
+        supportFragmentManager.addFragmentOnAttachListener { _, fragment ->
+            if (fragment is OnUpdateDataListener) {
+                listener = fragment
+            }
+        }
+    }
 
     interface OnUpdateDataListener {
         fun updateData()
@@ -22,8 +31,12 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var listener: OnUpdateDataListener
     private lateinit var binding: ActivityMainBinding
+    lateinit var appComponent: AppComponent
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        appComponent = (application as App).appComponent
+
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -33,15 +46,8 @@ class MainActivity : AppCompatActivity() {
                 .commitNow()
         }
 
-        if (!isWorkScheduled(TAG_REFRESH_WORK))
-            setPeriodicDataUpdate(TAG_REFRESH_WORK)
-    }
-
-    override fun onAttachFragment(fragment: Fragment) {
-        super.onAttachFragment(fragment)
-        if (fragment is OnUpdateDataListener) {
-            listener = fragment
-        }
+        if (!isWorkScheduled())
+            setPeriodicDataUpdate()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -59,7 +65,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setPeriodicDataUpdate(tag: String?) {
+    private fun setPeriodicDataUpdate() {
         val constraints =
             Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
         val periodicWorkRequest = PeriodicWorkRequest
@@ -72,15 +78,16 @@ class MainActivity : AppCompatActivity() {
             .build()
         val instance = WorkManager.getInstance(applicationContext)
         instance.enqueueUniquePeriodicWork(
-            tag!!,
+            TAG_REFRESH_WORK,
             ExistingPeriodicWorkPolicy.KEEP,
             periodicWorkRequest
         )
     }
 
-    private fun isWorkScheduled(tag: String): Boolean {
+    private fun isWorkScheduled(): Boolean {
         val instance = WorkManager.getInstance(applicationContext)
-        val statuses: ListenableFuture<List<WorkInfo>> = instance.getWorkInfosByTag(tag)
+        val statuses: ListenableFuture<List<WorkInfo>> =
+            instance.getWorkInfosByTag(TAG_REFRESH_WORK)
         return try {
             var running = false
             val workInfoList: List<WorkInfo> = statuses.get()
