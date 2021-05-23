@@ -4,7 +4,14 @@ import com.katyrin.testcftkotlin.view.CurrenciesFragment
 import dagger.Component
 import javax.inject.Singleton
 
-@Component(modules = [PresentationModule::class, AppModule::class])
+@Component(
+    modules = [
+        PresentationModule::class,
+        AppModule::class,
+        ApiModule::class,
+        DataModule::class
+    ]
+)
 @Singleton
 interface AppComponent {
     fun inject(currenciesFragment: CurrenciesFragment)
