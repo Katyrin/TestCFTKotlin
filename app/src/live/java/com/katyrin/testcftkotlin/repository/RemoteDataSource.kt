@@ -7,8 +7,8 @@ import javax.inject.Inject
 
 class RemoteDataSource @Inject constructor(
     private val currencyApi: CbrApi
-) {
-    fun getCurrencyDetails(callback: Callback<CurrenciesDTO>) {
+) : RemoteDataSourceInterface {
+    override fun getCurrencyDetails(callback: Callback<CurrenciesDTO>) {
         currencyApi.getCurrencies().enqueue(callback)
     }
 }
