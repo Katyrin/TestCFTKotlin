@@ -5,9 +5,9 @@ import retrofit2.Callback
 import javax.inject.Inject
 
 class CurrencyRepositoryImpl @Inject constructor(
-    private val remoteDataSource: RemoteDataSource
+    private val remoteDataSourceImpl: RemoteDataSourceImpl
 ) : CurrencyRepository {
     override fun getCurrenciesFromServer(callback: Callback<CurrenciesDTO>) {
-        remoteDataSource.getCurrencyDetails(callback)
+        remoteDataSourceImpl.getCurrencyDetails(callback)
     }
 }

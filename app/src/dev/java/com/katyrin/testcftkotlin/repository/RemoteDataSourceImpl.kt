@@ -5,9 +5,9 @@ import retrofit2.Callback
 import javax.inject.Inject
 
 
-class RemoteDataSource @Inject constructor(
+class RemoteDataSourceImpl @Inject constructor(
     private val mockCurrencyApi: MockCbrApi
-) : RemoteDataSourceInterface {
+) : RemoteDataSource {
     override fun getCurrencyDetails(callback: Callback<CurrenciesDTO>) {
         mockCurrencyApi.getCurrencies().enqueue(callback)
     }
