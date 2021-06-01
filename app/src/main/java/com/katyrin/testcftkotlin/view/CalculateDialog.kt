@@ -15,6 +15,7 @@ class CalculateDialog : BottomSheetDialogFragment() {
     companion object {
         private const val SELECTED_CURRENCY_RATE = "SELECTED_CURRENCY_RATE"
         private const val CALCULATE_DIALOG = "CALCULATE_DIALOG"
+
         fun newInstance(currency: Currency, fragmentManager: FragmentManager) =
             CalculateDialog().apply {
                 arguments = Bundle().apply {
@@ -47,20 +48,20 @@ class CalculateDialog : BottomSheetDialogFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.result.text = currency.charCode
-        binding.negativeButtonDialog.setOnClickListener {
-            dismiss()
-        }
+        binding.negativeButtonDialog.setOnClickListener { dismiss() }
         binding.positiveButtonDialog.setOnClickListener {
             if (binding.amountInRubles.text.toString() != "") {
-                val amountInRubles = binding.amountInRubles.text.toString().toDouble()
-                val result = amountInRubles * currency.nominal / currency.value
-                val roundResult = String.format("%.2f", result).toDouble()
-                val stringResult = "$roundResult ${currency.charCode}"
-                binding.result.text = stringResult
+                binding.result.text = countResult()
             } else {
                 binding.amountInRubles.error = getString(R.string.enter_amount)
             }
-
         }
+    }
+
+    private fun countResult() : String {
+        val amountInRubles = binding.amountInRubles.text.toString().toDouble()
+        val result = amountInRubles * currency.nominal / currency.value
+        val roundResult = String.format("%.2f", result).toDouble()
+        return "$roundResult ${currency.charCode}"
     }
 }

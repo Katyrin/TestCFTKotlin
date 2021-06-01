@@ -6,7 +6,7 @@ import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
 
-@Module
+@Module( includes = [UiModule::class])
 class AppModule(val app: App) {
 
     @Provides

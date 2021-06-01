@@ -11,6 +11,7 @@ import androidx.work.WorkerParameters
 import com.katyrin.testcftkotlin.repository.CurrencyRepository
 import com.katyrin.testcftkotlin.repository.LocalRepository
 import com.katyrin.testcftkotlin.utils.convertCurrenciesDTOToModel
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
@@ -20,6 +21,8 @@ class UpdateData @Inject constructor(
     private val currencyRemoteRepository: CurrencyRepository,
     private val currencyLocalRepository: LocalRepository
 ) : Worker(context, workerParameters) {
+
+    private var disposable: CompositeDisposable? = CompositeDisposable()
 
     override fun doWork(): Result {
         return try {
@@ -35,26 +38,19 @@ class UpdateData @Inject constructor(
     }
 
     private fun updateCurrenciesInDataBase() {
-        currencyRemoteRepository.getCurrenciesFromServer()
-            .subscribeOn(Schedulers.io())
-            .subscribe { serverResponse ->
-                convertCurrenciesDTOToModel(serverResponse).map {
-                    currencyLocalRepository.saveEntity(it)
+        disposable?.add(
+            currencyRemoteRepository.getCurrenciesFromServer()
+                .subscribeOn(Schedulers.io())
+                .subscribe { serverResponse ->
+                    convertCurrenciesDTOToModel(serverResponse).map {
+                        currencyLocalRepository.insertEntity(it)
+                    }
                 }
-            }
+        )
     }
 
     private fun showNotification(title: String, message: String) {
-        val notificationBuilder =
-            context.let {
-                NotificationCompat.Builder(it, CHANNEL_ID).apply {
-                    setSmallIcon(R.drawable.ic_baseline_refresh_24)
-                    setContentTitle(title)
-                    setContentText(message)
-                    setStyle(NotificationCompat.BigTextStyle().bigText(message))
-                    priority = NotificationCompat.PRIORITY_HIGH
-                }
-            }
+        val notificationBuilder = createNotificationBuilder(title, message)
         val notificationManager: NotificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -63,6 +59,15 @@ class UpdateData @Inject constructor(
         }
         notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build())
     }
+
+    private fun createNotificationBuilder(title: String, message: String) =
+        NotificationCompat.Builder(context, CHANNEL_ID).apply {
+            setSmallIcon(R.drawable.ic_baseline_refresh_24)
+            setContentTitle(title)
+            setContentText(message)
+            setStyle(NotificationCompat.BigTextStyle().bigText(message))
+            priority = NotificationCompat.PRIORITY_HIGH
+        }
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun createNotificationChannel(notificationManager: NotificationManager) {
@@ -73,6 +78,14 @@ class UpdateData @Inject constructor(
             description = descriptionText
         }
         notificationManager.createNotificationChannel(channel)
+    }
+
+    override fun onStopped() {
+        super.onStopped()
+        if (disposable != null) {
+            disposable?.clear()
+            disposable = null
+        }
     }
 
     companion object {

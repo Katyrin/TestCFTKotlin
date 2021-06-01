@@ -7,7 +7,7 @@ import com.katyrin.testcftkotlin.model.*
 import com.katyrin.testcftkotlin.repository.CurrencyRepository
 import com.katyrin.testcftkotlin.repository.LocalRepository
 import com.katyrin.testcftkotlin.utils.convertCurrenciesDTOToModel
-import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.Scheduler
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
@@ -15,7 +15,8 @@ import javax.inject.Inject
 
 class CurrenciesViewModel @Inject constructor(
     private val currencyRemoteRepository: CurrencyRepository,
-    private val currencyLocalRepository: LocalRepository
+    private val currencyLocalRepository: LocalRepository,
+    private val uiScheduler: Scheduler
 ) : ViewModel() {
 
     private var disposable: CompositeDisposable? = CompositeDisposable()
@@ -33,15 +34,24 @@ class CurrenciesViewModel @Inject constructor(
 
     fun getAllCurrencies() {
         _liveData.value = AppState.Loading
-        Thread {
-            _liveData.postValue(AppState.SuccessLocalQuery(currencyLocalRepository.getAllCurrencies()))
-        }.start()
+        disposable?.add(
+            currencyLocalRepository.getAllCurrencies()
+                .observeOn(uiScheduler)
+                .subscribe { currencies ->
+                    _liveData.value = getLocalRequestState(currencies)
+                }
+        )
     }
 
+    private fun getLocalRequestState(currencies: List<Currency>): AppState =
+        if (currencies.isEmpty()) {
+            AppState.EmptyLocalList
+        } else {
+            AppState.SuccessLocalRequest(currencies)
+        }
+
     fun saveCurrencyToDB(currency: Currency) {
-        Thread {
-            currencyLocalRepository.saveEntity(currency)
-        }.start()
+        currencyLocalRepository.insertEntity(currency)
     }
 
     fun getCurrenciesFromRemoteSource() {
@@ -49,11 +59,11 @@ class CurrenciesViewModel @Inject constructor(
         disposable?.add(
             currencyRemoteRepository.getCurrenciesFromServer()
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(uiScheduler)
                 .subscribe({ serverResponse ->
                     _liveData.postValue(
                         if (serverResponse != null) {
-                            checkResponse(serverResponse)
+                            getRemoteRequestState(serverResponse)
                         } else {
                             AppState.Error(Throwable(SERVER_ERROR))
                         }
@@ -64,14 +74,12 @@ class CurrenciesViewModel @Inject constructor(
         )
     }
 
-    private fun checkResponse(serverResponse: CurrenciesDTO): AppState {
-        val valute = serverResponse.valute
-        return if (valute == null) {
+    private fun getRemoteRequestState(serverResponse: CurrenciesDTO): AppState =
+        if (serverResponse.valute == null) {
             AppState.Error(Throwable(CORRUPTED_DATA))
         } else {
-            AppState.SuccessRemoteQuery(convertCurrenciesDTOToModel(serverResponse))
+            AppState.SuccessRemoteRequest(convertCurrenciesDTOToModel(serverResponse))
         }
-    }
 
     override fun onCleared() {
         super.onCleared()
