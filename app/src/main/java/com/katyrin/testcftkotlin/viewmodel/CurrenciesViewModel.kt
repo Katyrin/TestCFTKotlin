@@ -7,9 +7,9 @@ import com.katyrin.testcftkotlin.model.*
 import com.katyrin.testcftkotlin.repository.CurrencyRepository
 import com.katyrin.testcftkotlin.repository.LocalRepository
 import com.katyrin.testcftkotlin.utils.convertCurrenciesDTOToModel
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.schedulers.Schedulers
 import javax.inject.Inject
 
 
@@ -18,6 +18,7 @@ class CurrenciesViewModel @Inject constructor(
     private val currencyLocalRepository: LocalRepository
 ) : ViewModel() {
 
+    private var disposable: CompositeDisposable? = CompositeDisposable()
     private var currenciesSave = listOf<Currency>()
     private val _liveData: MutableLiveData<AppState> = MutableLiveData<AppState>()
     val liveData: LiveData<AppState> = _liveData
@@ -48,30 +49,38 @@ class CurrenciesViewModel @Inject constructor(
 
     fun getCurrenciesFromRemoteSource() {
         _liveData.value = AppState.Loading
-        currencyRemoteRepository.getCurrenciesFromServer(object : Callback<CurrenciesDTO> {
-            override fun onResponse(call: Call<CurrenciesDTO>, response: Response<CurrenciesDTO>) {
-                val serverResponse: CurrenciesDTO? = response.body()
-                _liveData.postValue(
-                    if (response.isSuccessful && serverResponse != null) {
-                        checkResponse(serverResponse)
-                    } else {
-                        AppState.Error(Throwable(SERVER_ERROR))
-                    }
-                )
-            }
+        disposable?.add(
+            currencyRemoteRepository.getCurrenciesFromServer()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ serverResponse ->
+                    _liveData.postValue(
+                        if (serverResponse != null) {
+                            checkResponse(serverResponse)
+                        } else {
+                            AppState.Error(Throwable(SERVER_ERROR))
+                        }
+                    )
+                }, { t ->
+                    _liveData.postValue(AppState.Error(Throwable(t?.message ?: REQUEST_ERROR)))
+                })
+        )
+    }
 
-            override fun onFailure(call: Call<CurrenciesDTO>, t: Throwable) {
-                _liveData.postValue(AppState.Error(Throwable(t.message ?: REQUEST_ERROR)))
-            }
+    private fun checkResponse(serverResponse: CurrenciesDTO): AppState {
+        val valute = serverResponse.valute
+        return if (valute == null) {
+            AppState.Error(Throwable(CORRUPTED_DATA))
+        } else {
+            AppState.SuccessRemoteQuery(convertCurrenciesDTOToModel(serverResponse))
+        }
+    }
 
-            private fun checkResponse(serverResponse: CurrenciesDTO): AppState {
-                val valute = serverResponse.valute
-                return if (valute == null) {
-                    AppState.Error(Throwable(CORRUPTED_DATA))
-                } else {
-                    AppState.SuccessRemoteQuery(convertCurrenciesDTOToModel(serverResponse))
-                }
-            }
-        })
+    override fun onCleared() {
+        super.onCleared()
+        if (disposable != null) {
+            disposable?.clear()
+            disposable = null
+        }
     }
 }

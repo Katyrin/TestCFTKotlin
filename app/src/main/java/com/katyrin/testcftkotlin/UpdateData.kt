@@ -8,12 +8,10 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import com.katyrin.testcftkotlin.model.CurrenciesDTO
-import com.katyrin.testcftkotlin.repository.*
+import com.katyrin.testcftkotlin.repository.CurrencyRepository
+import com.katyrin.testcftkotlin.repository.LocalRepository
 import com.katyrin.testcftkotlin.utils.convertCurrenciesDTOToModel
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import io.reactivex.rxjava3.schedulers.Schedulers
 import javax.inject.Inject
 
 class UpdateData @Inject constructor(
@@ -37,20 +35,13 @@ class UpdateData @Inject constructor(
     }
 
     private fun updateCurrenciesInDataBase() {
-        currencyRemoteRepository.getCurrenciesFromServer(object : Callback<CurrenciesDTO> {
-            override fun onResponse(call: Call<CurrenciesDTO>, response: Response<CurrenciesDTO>) {
-                val serverResponse: CurrenciesDTO? = response.body()
-                if (serverResponse != null) {
-                    convertCurrenciesDTOToModel(serverResponse).map {
-                        Thread {
-                            currencyLocalRepository.saveEntity(it)
-                        }.start()
-                    }
+        currencyRemoteRepository.getCurrenciesFromServer()
+            .subscribeOn(Schedulers.io())
+            .subscribe { serverResponse ->
+                convertCurrenciesDTOToModel(serverResponse).map {
+                    currencyLocalRepository.saveEntity(it)
                 }
             }
-
-            override fun onFailure(call: Call<CurrenciesDTO>, t: Throwable) {}
-        })
     }
 
     private fun showNotification(title: String, message: String) {

@@ -6,6 +6,7 @@ import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
@@ -55,8 +56,7 @@ class CurrenciesFragment : Fragment(), MainActivity.OnUpdateDataListener {
     private fun renderData(appState: AppState) {
         when (appState) {
             is AppState.SuccessRemoteQuery -> {
-                binding.loadingLayout.visibility = View.GONE
-                binding.currenciesRecyclerView.visibility = View.VISIBLE
+                showRecycler()
                 setData(appState.currencies)
                 updateLocalData(appState.currencies)
                 currencyList = appState.currencies
@@ -66,8 +66,7 @@ class CurrenciesFragment : Fragment(), MainActivity.OnUpdateDataListener {
                 )
             }
             is AppState.SuccessLocalQuery -> {
-                binding.loadingLayout.visibility = View.GONE
-                binding.currenciesRecyclerView.visibility = View.VISIBLE
+                showRecycler()
                 if (appState.currencies.isEmpty()) {
                     viewModel.getCurrenciesFromRemoteSource()
                 } else {
@@ -80,8 +79,7 @@ class CurrenciesFragment : Fragment(), MainActivity.OnUpdateDataListener {
                 }
             }
             is AppState.SuccessSaveData -> {
-                binding.loadingLayout.visibility = View.GONE
-                binding.currenciesRecyclerView.visibility = View.VISIBLE
+                showRecycler()
                 setData(appState.currencies)
                 currencyList = appState.currencies
                 requireView().createAndShow(
@@ -90,11 +88,10 @@ class CurrenciesFragment : Fragment(), MainActivity.OnUpdateDataListener {
                 )
             }
             is AppState.Loading -> {
-                binding.currenciesRecyclerView.visibility = View.GONE
-                binding.loadingLayout.visibility = View.VISIBLE
+                hideRecycler()
             }
             is AppState.Error -> {
-                binding.loadingLayout.visibility = View.GONE
+                showRecycler()
                 requireView().createAndShow(
                     getString(R.string.error),
                     getString(R.string.reload),
@@ -103,6 +100,16 @@ class CurrenciesFragment : Fragment(), MainActivity.OnUpdateDataListener {
                 )
             }
         }
+    }
+
+    private fun showRecycler() {
+        binding.loadingLayout.isVisible = false
+        binding.currenciesRecyclerView.isVisible = true
+    }
+
+    private fun hideRecycler() {
+        binding.loadingLayout.isVisible = true
+        binding.currenciesRecyclerView.isVisible = false
     }
 
     private fun updateLocalData(currencies: List<Currency>) {

@@ -1,8 +1,8 @@
 package com.katyrin.testcftkotlin.repository
 
 import com.katyrin.testcftkotlin.model.CurrenciesDTO
-import retrofit2.Callback
+import io.reactivex.rxjava3.core.Single
 
 interface CurrencyRepository {
-    fun getCurrenciesFromServer(callback: Callback<CurrenciesDTO>)
+    fun getCurrenciesFromServer(): Single<CurrenciesDTO>
 }
