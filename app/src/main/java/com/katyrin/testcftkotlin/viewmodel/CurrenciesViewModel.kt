@@ -61,15 +61,14 @@ class CurrenciesViewModel @Inject constructor(
                 .subscribeOn(Schedulers.io())
                 .observeOn(uiScheduler)
                 .subscribe({ serverResponse ->
-                    _liveData.postValue(
+                    _liveData.value =
                         if (serverResponse != null) {
                             getRemoteRequestState(serverResponse)
                         } else {
                             AppState.Error(Throwable(SERVER_ERROR))
                         }
-                    )
                 }, { t ->
-                    _liveData.postValue(AppState.Error(Throwable(t.message ?: REQUEST_ERROR)))
+                    _liveData.value = AppState.Error(Throwable(t.message ?: REQUEST_ERROR))
                 })
         )
     }
