@@ -6,19 +6,20 @@ import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.katyrin.testcftkotlin.R
 import com.katyrin.testcftkotlin.databinding.CurrenciesFragmentBinding
 import com.katyrin.testcftkotlin.model.Currency
+import com.katyrin.testcftkotlin.utils.createAndShow
 import com.katyrin.testcftkotlin.viewmodel.AppState
 import com.katyrin.testcftkotlin.viewmodel.CurrenciesViewModel
 import javax.inject.Inject
 
-class CurrenciesFragment : Fragment(), MainActivity.OnUpdateDataListener {
+class CurrenciesFragment : Fragment(), OnUpdateDataListener {
 
     @Inject
     lateinit var factory: ViewModelProvider.Factory
@@ -42,11 +43,10 @@ class CurrenciesFragment : Fragment(), MainActivity.OnUpdateDataListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         viewModel.liveData.observe(viewLifecycleOwner, { renderData(it) })
+
         if (savedInstanceState != null) {
-            savedRecyclerLayoutState =
-                savedInstanceState.getParcelable(BUNDLE_RECYCLER_LAYOUT)
+            savedRecyclerLayoutState = savedInstanceState.getParcelable(BUNDLE_RECYCLER_LAYOUT)
             viewModel.getSaveStateLiveData()
         } else
             viewModel.getAllCurrencies()
@@ -54,47 +54,40 @@ class CurrenciesFragment : Fragment(), MainActivity.OnUpdateDataListener {
 
     private fun renderData(appState: AppState) {
         when (appState) {
-            is AppState.SuccessRemoteQuery -> {
-                binding.loadingLayout.visibility = View.GONE
-                binding.currenciesRecyclerView.visibility = View.VISIBLE
+            is AppState.SuccessRemoteRequest -> {
+                showRecycler()
                 setData(appState.currencies)
                 updateLocalData(appState.currencies)
-                currencyList = appState.currencies
                 requireView().createAndShow(
                     getString(R.string.success_remote),
                     length = Snackbar.LENGTH_LONG
                 )
             }
-            is AppState.SuccessLocalQuery -> {
-                binding.loadingLayout.visibility = View.GONE
-                binding.currenciesRecyclerView.visibility = View.VISIBLE
-                if (appState.currencies.isEmpty()) {
-                    viewModel.getCurrenciesFromRemoteSource()
-                } else {
-                    setData(appState.currencies)
-                    currencyList = appState.currencies
-                    requireView().createAndShow(
-                        getString(R.string.success_local_db),
-                        length = Snackbar.LENGTH_LONG
-                    )
-                }
+            is AppState.SuccessLocalRequest -> {
+                showRecycler()
+                setData(appState.currencies)
+                requireView().createAndShow(
+                    getString(R.string.success_local_db),
+                    length = Snackbar.LENGTH_LONG
+                )
+            }
+            is AppState.EmptyLocalList -> {
+                showRecycler()
+                viewModel.getCurrenciesFromRemoteSource()
             }
             is AppState.SuccessSaveData -> {
-                binding.loadingLayout.visibility = View.GONE
-                binding.currenciesRecyclerView.visibility = View.VISIBLE
+                showRecycler()
                 setData(appState.currencies)
-                currencyList = appState.currencies
                 requireView().createAndShow(
                     getString(R.string.success_local),
                     length = Snackbar.LENGTH_LONG
                 )
             }
             is AppState.Loading -> {
-                binding.currenciesRecyclerView.visibility = View.GONE
-                binding.loadingLayout.visibility = View.VISIBLE
+                hideRecycler()
             }
             is AppState.Error -> {
-                binding.loadingLayout.visibility = View.GONE
+                showRecycler()
                 requireView().createAndShow(
                     getString(R.string.error),
                     getString(R.string.reload),
@@ -105,6 +98,16 @@ class CurrenciesFragment : Fragment(), MainActivity.OnUpdateDataListener {
         }
     }
 
+    private fun showRecycler() {
+        binding.loadingLayout.isVisible = false
+        binding.currenciesRecyclerView.isVisible = true
+    }
+
+    private fun hideRecycler() {
+        binding.loadingLayout.isVisible = true
+        binding.currenciesRecyclerView.isVisible = false
+    }
+
     private fun updateLocalData(currencies: List<Currency>) {
         currencies.map {
             viewModel.saveCurrencyToDB(it)
@@ -113,30 +116,20 @@ class CurrenciesFragment : Fragment(), MainActivity.OnUpdateDataListener {
 
     private fun setData(currencies: List<Currency>) {
         val sortCurrency = currencies.sortedBy { it.name }
-        val layoutManager = LinearLayoutManager(requireContext())
-        layoutManager.orientation = LinearLayoutManager.VERTICAL
-        binding.currenciesRecyclerView.layoutManager = layoutManager
-        if (savedRecyclerLayoutState != null) {
-            binding.currenciesRecyclerView.layoutManager
-                ?.onRestoreInstanceState(savedRecyclerLayoutState)
-        }
+        currencyList = sortCurrency
+        setRecyclerLayoutState()
         binding.currenciesRecyclerView.adapter =
-            CurrenciesRecyclerViewAdapter(sortCurrency, object : CurrencyOnClickListener {
-                override fun onCurrencyClicked(currency: Currency) {
-                    CalculateDialog.newInstance(currency, requireActivity().supportFragmentManager)
-                }
-            })
+            CurrenciesRecyclerViewAdapter(sortCurrency) { currency ->
+                CalculateDialog.newInstance(currency, requireActivity().supportFragmentManager)
+            }
     }
 
-    private fun View.createAndShow(
-        text: String, actionText: String = "",
-        action: ((View) -> Unit)? = null,
-        length: Int = Snackbar.LENGTH_INDEFINITE
-    ) {
-        Snackbar.make(this, text, length)
-            .also {
-                if (action != null) it.setAction(actionText, action)
-            }.show()
+    private fun setRecyclerLayoutState() {
+        if (savedRecyclerLayoutState != null) {
+            binding.currenciesRecyclerView.layoutManager?.onRestoreInstanceState(
+                savedRecyclerLayoutState
+            )
+        }
     }
 
     override fun updateData() {

@@ -8,7 +8,7 @@ import com.katyrin.testcftkotlin.model.Currency
 
 class CurrenciesRecyclerViewAdapter(
     private val currencies: List<Currency>,
-    private val onClickListener: CurrencyOnClickListener
+    private val onClickListener: (currency: Currency) -> Unit
 ) : RecyclerView.Adapter<CurrenciesRecyclerViewAdapter.CurrenciesViewHolder>() {
 
     inner class CurrenciesViewHolder(private val itemBinding: RvCurrencyItemBinding) :
@@ -20,7 +20,7 @@ class CurrenciesRecyclerViewAdapter(
             itemBinding.currencyValue.text = currency.value.toString()
             itemBinding.currencyNominal.text = currency.nominal.toString()
             itemBinding.root.setOnClickListener {
-                onClickListener.onCurrencyClicked(currency)
+                onClickListener(currency)
             }
         }
     }

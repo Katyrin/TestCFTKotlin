@@ -1,5 +1,7 @@
 package com.katyrin.testcftkotlin.utils
 
+import android.view.View
+import com.google.android.material.snackbar.Snackbar
 import com.katyrin.testcftkotlin.model.CurrenciesDTO
 import com.katyrin.testcftkotlin.model.Currency
 import com.katyrin.testcftkotlin.model.ValuteDTO
@@ -17,4 +19,15 @@ fun convertCurrenciesDTOToModel(currenciesDTO: CurrenciesDTO): List<Currency> {
         )
     }
     return list
+}
+
+fun View.createAndShow(
+    text: String, actionText: String = "",
+    action: ((View) -> Unit)? = null,
+    length: Int = Snackbar.LENGTH_INDEFINITE
+) {
+    Snackbar.make(this, text, length)
+        .also {
+            if (action != null) it.setAction(actionText, action)
+        }.show()
 }

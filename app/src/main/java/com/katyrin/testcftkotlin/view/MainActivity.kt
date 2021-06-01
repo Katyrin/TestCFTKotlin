@@ -14,19 +14,12 @@ import com.katyrin.testcftkotlin.di.AppComponent
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 
-
 class MainActivity : AppCompatActivity() {
 
     init {
         supportFragmentManager.addFragmentOnAttachListener { _, fragment ->
-            if (fragment is OnUpdateDataListener) {
-                listener = fragment
-            }
+            if (fragment is OnUpdateDataListener) listener = fragment
         }
-    }
-
-    interface OnUpdateDataListener {
-        fun updateData()
     }
 
     private lateinit var listener: OnUpdateDataListener
@@ -34,20 +27,19 @@ class MainActivity : AppCompatActivity() {
     lateinit var appComponent: AppComponent
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
         appComponent = (application as App).appComponent
-
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.container, CurrenciesFragment.newInstance())
-                .commitNow()
-        }
 
-        if (!isWorkScheduled())
-            setPeriodicDataUpdate()
+        if (savedInstanceState == null) replaceCurrenciesFragment()
+        if (!isWorkScheduled()) setPeriodicDataUpdate()
+    }
+
+    private fun replaceCurrenciesFragment() {
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.container, CurrenciesFragment.newInstance())
+            .commitNow()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -66,17 +58,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setPeriodicDataUpdate() {
-        val constraints =
-            Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
-        val periodicWorkRequest = PeriodicWorkRequest
-            .Builder(
-                UpdateData::class.java,
-                30, TimeUnit.MINUTES,
-                25, TimeUnit.MINUTES
-            )
-            .setConstraints(constraints)
-            .build()
-        val instance = WorkManager.getInstance(applicationContext)
+        val periodicWorkRequest = getPeriodicWorkRequest()
+        val instance = WorkManager.getInstance(this)
         instance.enqueueUniquePeriodicWork(
             TAG_REFRESH_WORK,
             ExistingPeriodicWorkPolicy.KEEP,
@@ -84,14 +67,24 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
+    private fun getPeriodicWorkRequest() =
+        Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
+            .let { constraints ->
+                PeriodicWorkRequest.Builder(
+                    UpdateData::class.java,
+                    REPEAT_INTERVAL, TimeUnit.MINUTES,
+                    FIX_INTERVAL, TimeUnit.MINUTES
+                )
+                    .setConstraints(constraints)
+                    .build()
+            }
+
+
     private fun isWorkScheduled(): Boolean {
-        val instance = WorkManager.getInstance(applicationContext)
-        val statuses: ListenableFuture<List<WorkInfo>> =
-            instance.getWorkInfosByTag(TAG_REFRESH_WORK)
+        val statuses = WorkManager.getInstance(this).getWorkInfosByTag(TAG_REFRESH_WORK)
         return try {
             var running = false
-            val workInfoList: List<WorkInfo> = statuses.get()
-            for (workInfo in workInfoList) {
+            for (workInfo in statuses.get()) {
                 val state = workInfo.state
                 running = state == WorkInfo.State.RUNNING || state == WorkInfo.State.ENQUEUED
             }
@@ -106,6 +99,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
+        private const val FIX_INTERVAL = 25L
+        private const val REPEAT_INTERVAL = 30L
         private const val TAG_REFRESH_WORK = "REFRESH_WORK"
     }
 }

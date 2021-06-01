@@ -6,6 +6,7 @@ import com.katyrin.testcftkotlin.repository.MockCbrApi
 import dagger.Module
 import dagger.Provides
 import retrofit2.Retrofit
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.mock.BehaviorDelegate
 import retrofit2.mock.MockRetrofit
 import retrofit2.mock.NetworkBehavior
@@ -16,7 +17,11 @@ class ApiModule {
 
     @Provides
     @Singleton
-    fun retrofit(): Retrofit = Retrofit.Builder().baseUrl(BASE_URL).build()
+    fun retrofit(): Retrofit = Retrofit.Builder()
+        .baseUrl(BASE_URL)
+        .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+        .build()
+
 
     @Provides
     @Singleton

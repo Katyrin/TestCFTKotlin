@@ -3,15 +3,15 @@ package com.katyrin.testcftkotlin.repository
 import com.katyrin.testcftkotlin.model.BASE_URL
 import com.katyrin.testcftkotlin.model.CurrenciesDTO
 import com.katyrin.testcftkotlin.model.ValuteDTO
-import retrofit2.Call
+import io.reactivex.Single
 import retrofit2.mock.BehaviorDelegate
-import java.util.LinkedHashMap
+import java.util.*
 
 class MockCbrApi(private val behaviorDelegate: BehaviorDelegate<CbrApi>) : CbrApi {
 
     private val initValute: MutableMap<String, ValuteDTO>
 
-    override fun getCurrencies(): Call<CurrenciesDTO> {
+    override fun getCurrencies(): Single<CurrenciesDTO> {
         val response = CurrenciesDTO("", "", BASE_URL, "", initValute)
         return behaviorDelegate.returningResponse(response).getCurrencies()
     }
