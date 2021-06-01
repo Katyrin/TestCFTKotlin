@@ -11,7 +11,7 @@ import androidx.work.WorkerParameters
 import com.katyrin.testcftkotlin.repository.CurrencyRepository
 import com.katyrin.testcftkotlin.repository.LocalRepository
 import com.katyrin.testcftkotlin.utils.convertCurrenciesDTOToModel
-import io.reactivex.rxjava3.schedulers.Schedulers
+import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
 class UpdateData @Inject constructor(

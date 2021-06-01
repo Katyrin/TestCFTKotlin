@@ -3,7 +3,7 @@ package com.katyrin.testcftkotlin.repository
 import com.katyrin.testcftkotlin.model.BASE_URL
 import com.katyrin.testcftkotlin.model.CurrenciesDTO
 import com.katyrin.testcftkotlin.model.ValuteDTO
-import io.reactivex.rxjava3.core.Single
+import io.reactivex.Single
 import retrofit2.mock.BehaviorDelegate
 import java.util.*
 

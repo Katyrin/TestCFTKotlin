@@ -1,7 +1,7 @@
 package com.katyrin.testcftkotlin.repository
 
 import com.katyrin.testcftkotlin.model.CurrenciesDTO
-import io.reactivex.rxjava3.core.Single
+import io.reactivex.Single
 import retrofit2.http.GET
 
 interface CbrApi {

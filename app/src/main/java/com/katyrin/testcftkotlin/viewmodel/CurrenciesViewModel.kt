@@ -7,9 +7,9 @@ import com.katyrin.testcftkotlin.model.*
 import com.katyrin.testcftkotlin.repository.CurrencyRepository
 import com.katyrin.testcftkotlin.repository.LocalRepository
 import com.katyrin.testcftkotlin.utils.convertCurrenciesDTOToModel
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.schedulers.Schedulers
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
 
@@ -24,10 +24,7 @@ class CurrenciesViewModel @Inject constructor(
     val liveData: LiveData<AppState> = _liveData
 
     fun getSaveStateLiveData() {
-        _liveData.value = AppState.Loading
-        Thread {
-            _liveData.postValue(currenciesSave.let { AppState.SuccessSaveData(it) })
-        }.start()
+        _liveData.value = currenciesSave.let { AppState.SuccessSaveData(it) }
     }
 
     fun saveState(currencies: List<Currency>) {
@@ -62,7 +59,7 @@ class CurrenciesViewModel @Inject constructor(
                         }
                     )
                 }, { t ->
-                    _liveData.postValue(AppState.Error(Throwable(t?.message ?: REQUEST_ERROR)))
+                    _liveData.postValue(AppState.Error(Throwable(t.message ?: REQUEST_ERROR)))
                 })
         )
     }
