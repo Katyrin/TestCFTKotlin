@@ -1,20 +1,12 @@
 package com.katyrin.testcftkotlin.di
 
-import com.katyrin.testcftkotlin.App
-import com.katyrin.testcftkotlin.model.room.CurrenciesDao
+import android.content.Context
 import dagger.Module
 import dagger.Provides
-import javax.inject.Singleton
 
-@Module( includes = [UiModule::class])
-class AppModule(val app: App) {
-
-    @Provides
-    fun app(): App {
-        return app
-    }
+@Module
+class AppModule(private val context: Context) {
 
     @Provides
-    @Singleton
-    fun localDataSource(app: App): CurrenciesDao = app.getCurrenciesDao()
+    fun context(): Context = context
 }

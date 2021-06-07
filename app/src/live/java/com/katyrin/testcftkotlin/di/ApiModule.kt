@@ -1,7 +1,7 @@
 package com.katyrin.testcftkotlin.di
 
 import com.google.gson.GsonBuilder
-import com.katyrin.testcftkotlin.model.BASE_URL
+import com.katyrin.testcftkotlin.utils.BASE_URL
 import com.katyrin.testcftkotlin.repository.CbrApi
 import com.katyrin.testcftkotlin.repository.CurrencyApiInterceptor
 import dagger.Binds
@@ -31,12 +31,11 @@ interface ApiModule {
 
         @Provides
         @Singleton
-        fun client(interceptor: Interceptor): OkHttpClient {
-            val okHttpClient = OkHttpClient.Builder()
-            okHttpClient.addInterceptor(interceptor)
-            okHttpClient.addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
-            return okHttpClient.build()
-        }
+        fun client(interceptor: Interceptor): OkHttpClient =
+            OkHttpClient.Builder().apply {
+                addInterceptor(interceptor)
+                addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
+            }.build()
     }
 
     @Binds

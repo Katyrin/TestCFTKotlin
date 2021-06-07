@@ -19,4 +19,8 @@ interface DataModule {
     @Binds
     @Singleton
     fun remoteDataSource(remoteDataSourceImpl: RemoteDataSourceImpl): RemoteDataSource
+
+    @Binds
+    @Singleton
+    fun localDataSource(localDataSourceImpl: LocalDataSourceImpl): LocalDataSource
 }

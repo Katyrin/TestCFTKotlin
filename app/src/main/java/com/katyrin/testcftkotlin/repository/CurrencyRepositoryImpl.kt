@@ -5,8 +5,8 @@ import io.reactivex.Single
 import javax.inject.Inject
 
 class CurrencyRepositoryImpl @Inject constructor(
-    private val remoteDataSourceImpl: RemoteDataSourceImpl
+    private val remoteDataSource: RemoteDataSource
 ) : CurrencyRepository {
     override fun getCurrenciesFromServer(): Single<CurrenciesDTO> =
-        remoteDataSourceImpl.getCurrencyDetails()
+        remoteDataSource.getCurrencyDetails()
 }

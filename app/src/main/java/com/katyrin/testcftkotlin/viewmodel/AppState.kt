@@ -9,4 +9,5 @@ sealed class AppState {
     data class Error(val error: Throwable) : AppState()
     object Loading : AppState()
     object EmptyLocalList : AppState()
+    object SuccessInsert : AppState()
 }
