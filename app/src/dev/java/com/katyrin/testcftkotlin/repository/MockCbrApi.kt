@@ -1,8 +1,8 @@
 package com.katyrin.testcftkotlin.repository
 
-import com.katyrin.testcftkotlin.model.BASE_URL
 import com.katyrin.testcftkotlin.model.CurrenciesDTO
 import com.katyrin.testcftkotlin.model.ValuteDTO
+import com.katyrin.testcftkotlin.utils.BASE_URL
 import io.reactivex.Single
 import retrofit2.mock.BehaviorDelegate
 import java.util.*

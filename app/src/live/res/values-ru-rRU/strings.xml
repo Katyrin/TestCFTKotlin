@@ -11,6 +11,7 @@
     <string name="update_data_message">Данные обновлены в фоне</string>
     <string name="success_remote">Успешная загрузка удаленных данных</string>
     <string name="success_local">Успешная загрузка локальных данных</string>
+    <string name="success_insert">Успешная запись локальных данных</string>
     <string name="success_local_db">Успешная загрузка локальных данных из БД</string>
     <string name="error">Ошибка</string>
     <string name="reload">Перезагрузить</string>

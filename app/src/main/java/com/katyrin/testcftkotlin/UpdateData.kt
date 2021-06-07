@@ -8,16 +8,18 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import com.katyrin.testcftkotlin.model.CurrenciesDTO
 import com.katyrin.testcftkotlin.repository.CurrencyRepository
 import com.katyrin.testcftkotlin.repository.LocalRepository
 import com.katyrin.testcftkotlin.utils.convertCurrenciesDTOToModel
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
 class UpdateData @Inject constructor(
-    private val context: Context,
     workerParameters: WorkerParameters,
+    private val context: Context,
     private val currencyRemoteRepository: CurrencyRepository,
     private val currencyLocalRepository: LocalRepository
 ) : Worker(context, workerParameters) {
@@ -41,12 +43,16 @@ class UpdateData @Inject constructor(
         disposable?.add(
             currencyRemoteRepository.getCurrenciesFromServer()
                 .subscribeOn(Schedulers.io())
-                .subscribe { serverResponse ->
-                    convertCurrenciesDTOToModel(serverResponse).map {
-                        currencyLocalRepository.insertEntity(it)
-                    }
-                }
+                .subscribe(::insertEntity)
         )
+    }
+
+    private fun insertEntity(serverResponse: CurrenciesDTO) {
+        convertCurrenciesDTOToModel(serverResponse).map {
+            currencyLocalRepository.insertEntity(it)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe()
+        }
     }
 
     private fun showNotification(title: String, message: String) {

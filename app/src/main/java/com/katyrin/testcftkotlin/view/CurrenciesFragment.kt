@@ -95,6 +95,12 @@ class CurrenciesFragment : Fragment(), OnUpdateDataListener {
                     Snackbar.LENGTH_INDEFINITE
                 )
             }
+            is AppState.SuccessInsert -> {
+                requireView().createAndShow(
+                    getString(R.string.success_insert),
+                    length = Snackbar.LENGTH_LONG
+                )
+            }
         }
     }
 

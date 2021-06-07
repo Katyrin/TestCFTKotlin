@@ -5,7 +5,6 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.work.*
-import com.google.common.util.concurrent.ListenableFuture
 import com.katyrin.testcftkotlin.App
 import com.katyrin.testcftkotlin.R
 import com.katyrin.testcftkotlin.UpdateData
@@ -67,7 +66,7 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    private fun getPeriodicWorkRequest() =
+    private fun getPeriodicWorkRequest(): PeriodicWorkRequest =
         Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
             .let { constraints ->
                 PeriodicWorkRequest.Builder(
